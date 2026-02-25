@@ -1,3 +1,10 @@
+Here is the updated HTML file. I have specifically **corrected the output formatting** for `info()`, `describe()`, and `dtypes` to exactly match how they appear in a real Pandas environment (Jupyter Notebook).
+
+* **`info()`**: Now displays the authentic console text block (class, range, columns, dtypes, memory).
+* **`describe()`**: Now includes the full statistical breakdown (`count`, `mean`, `std`, `min`, `25%`, `50%`, `75%`, `max`).
+* **`dtypes()`**: Now displays as a clean Table mapping columns to their types.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -246,7 +253,7 @@ df2 = pd.DataFrame({'Key': ['B', 'C', 'D'], 'Val2': [4, 5, 6]})
     </div>
 
     <footer class="fixed-footer">
-        Ideation & development <a href="https://github.com/edusatyaki" target="_blank">Satyaki Das</a> | Innovation in Education v_05.1.0
+        Ideation & development <a href="https://github.com/edusatyaki" target="_blank">Satyaki Das</a> | Innovation in Education v_05.2.0
     </footer>
 
     <script>
@@ -282,13 +289,24 @@ df2 = pd.DataFrame({'Key': ['B', 'C', 'D'], 'Val2': [4, 5, 6]})
             { cat: 'IO', name: 'to_parquet()', desc: 'Write to Parquet.', code: "# Save as binary Parquet\ndf.to_parquet('out.parquet')", out: 'None' },
             { cat: 'IO', name: 'to_pickle()', desc: 'Pickle object.', code: "# Serialize object\ndf.to_pickle('out.pkl')", out: 'None' },
 
-            // 2. Core - Inspection
+            // 2. Core - Inspection (FIXED OUTPUTS)
             { cat: 'Core', name: 'head()', desc: 'First n rows.', code: "# Preview first 2 rows\ndf.head(2)", out: createTable(['EmpID','Name','Dept','Salary','Date'],[[101,'Alice','IT',70000,'2023-01-01'],[102,'Bob','Sales',85000,'2023-02-15']]) },
             { cat: 'Core', name: 'tail()', desc: 'Last n rows.', code: "# Preview last 2 rows\ndf.tail(2)", out: createTable(['EmpID','Name','Dept','Salary','Date'],[[103,'Charlie','IT',70000,'2023-01-01'],[104,'David','HR',60000,'2023-03-10']], [2,3]) },
-            { cat: 'Core', name: 'info()', desc: 'DataFrame summary.', code: "# Check memory & types\ndf.info()", out: '<pre>RangeIndex: 4 entries...</pre>' },
-            { cat: 'Core', name: 'describe()', desc: 'Statistics summary.', code: "# Numeric stats summary\ndf.describe()", out: createTable(['EmpID','Salary'], [['4.0','4.0'],['102.5','71250.0'],['1.29','10307.7']], ['count','mean','std']) },
+            { cat: 'Core', name: 'info()', desc: 'DataFrame summary.', code: "# Check memory & types\ndf.info()", out: `<div style="font-family: monospace; white-space: pre; font-size: 11px; line-height: 1.4;">&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 4 entries, 0 to 3
+Data columns (total 5 columns):
+ #   Column   Non-Null Count  Dtype 
+---  ------   --------------  ----- 
+ 0   EmpID    4 non-null      int64 
+ 1   Name     4 non-null      object
+ 2   Dept     4 non-null      object
+ 3   Salary   4 non-null      int64 
+ 4   Date     4 non-null      object
+dtypes: int64(2), object(3)
+memory usage: 288.0 bytes</div>` },
+            { cat: 'Core', name: 'describe()', desc: 'Statistics summary.', code: "# Numeric stats summary\ndf.describe()", out: createTable(['EmpID','Salary'], [['4.0','4.0'],['102.5','71250.0'],['1.29','10307.8'],['101.0','60000.0'],['101.75','67500.0'],['102.5','70000.0'],['103.25','73750.0'],['104.0','85000.0']], ['count','mean','std','min','25%','50%','75%','max']) },
             { cat: 'Core', name: 'shape', desc: 'Dimensions.', code: "# Rows, Columns\ndf.shape", out: '(4, 5)' },
-            { cat: 'Core', name: 'dtypes', desc: 'Data types.', code: "# Column types\ndf.dtypes", out: 'EmpID int64<br>Name object...' },
+            { cat: 'Core', name: 'dtypes', desc: 'Data types.', code: "# Column types\ndf.dtypes", out: createTable(['Dtype'],[['int64'],['object'],['object'],['int64'],['object']], ['EmpID','Name','Dept','Salary','Date']) },
             { cat: 'Core', name: 'columns', desc: 'Column labels.', code: "# Get headers\ndf.columns", out: "Index(['EmpID', 'Name'...], dtype='object')" },
             { cat: 'Core', name: 'index', desc: 'Index labels.', code: "# Get row labels\ndf.index", out: 'RangeIndex(start=0, stop=4, step=1)' },
             { cat: 'Core', name: 'values', desc: 'Numpy representation.', code: "# Get raw array\ndf.values", out: "array([[101, 'Alice'...]])" },
@@ -386,7 +404,7 @@ df2 = pd.DataFrame({'Key': ['B', 'C', 'D'], 'Val2': [4, 5, 6]})
             { cat: 'Aggregation', name: 'expanding()', desc: 'Expanding window.', code: "# Cumulative max\ndf['Salary'].expanding().max()", out: '70000, 85000...' },
             { cat: 'Aggregation', name: 'ewm()', desc: 'Exp weighted.', code: "# Exp weighted mean\ndf['Salary'].ewm(span=2).mean()", out: 'Weighted means' },
             
-            // 8. Merging (UPDATED WITH ALL JOIN TYPES)
+            // 8. Merging
             { cat: 'Merging', isJoin: true, name: 'merge() (Inner)', desc: 'Intersection of keys.', code: "# Inner Join (A, B) & (B, C) -> B, C\npd.merge(df1, df2, on='Key', how='inner')", out: createTable(['Key','Val1','Val2'], [['B',2,4],['C',3,5]]) },
             { cat: 'Merging', isJoin: true, name: 'merge() (Left)', desc: 'Keep all left keys.', code: "# Left Join: Keep all df1\npd.merge(df1, df2, on='Key', how='left')", out: createTable(['Key','Val1','Val2'], [['A',1,'NaN'],['B',2,4],['C',3,5]]) },
             { cat: 'Merging', isJoin: true, name: 'merge() (Right)', desc: 'Keep all right keys.', code: "# Right Join: Keep all df2\npd.merge(df1, df2, on='Key', how='right')", out: createTable(['Key','Val1','Val2'], [['B',2,4],['C',3,5],['D','NaN',6]]) },
@@ -541,3 +559,5 @@ df2 = pd.DataFrame({'Key': ['B', 'C', 'D'], 'Val2': [4, 5, 6]})
     </script>
 </body>
 </html>
+
+```
