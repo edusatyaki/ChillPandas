@@ -94,6 +94,13 @@
         .file-header { background: #f6f8fa; padding: 5px 10px; font-family: sans-serif; font-size: 12px; font-weight: 600; color: #586069; border-bottom: 1px solid #e1e4e8; display: flex; gap: 6px; align-items: center; }
         .file-content { padding: 10px; background: #fff; font-family: 'Fira Code', monospace; font-size: 12px; color: #24292e; white-space: pre; overflow-x: auto; }
 
+        /* Join Tables Preview */
+        .join-setup-container { margin-left: 60px; margin-bottom: 25px; display: none; }
+        .join-tables-wrapper { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+        .df-card { flex: 1; min-width: 250px; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden; }
+        .df-card-header { background: #f6f8fa; padding: 5px 10px; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e1e4e8; color: #586069; }
+        .df-card-body { padding: 10px; overflow-x: auto; background: #fff; }
+
         .output-area { margin-left: 60px; font-family: sans-serif; font-size: 13px; color: #333; overflow-x: auto; }
         .dataframe { border: none; border-collapse: collapse; border-spacing: 0; color: black; font-size: 12px; table-layout: fixed; }
         .dataframe thead { border-bottom: 1px solid #c8c8c8; vertical-align: bottom; }
@@ -208,6 +215,25 @@ df</div>
                     <div class="file-content" id="source-body"></div>
                 </div>
 
+                <div class="join-setup-container" id="join-container">
+                    <div class="input-area" style="border:none; padding:0; background:none;">
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="comment"># Creating two DataFrames for Join examples</span>
+df1 = pd.DataFrame({'Key': ['A', 'B', 'C'], 'Val1': [1, 2, 3]})
+df2 = pd.DataFrame({'Key': ['B', 'C', 'D'], 'Val2': [4, 5, 6]})
+                    </div>
+                    <div class="join-tables-wrapper">
+                        <div class="df-card">
+                            <div class="df-card-header">df1 (Left)</div>
+                            <div class="df-card-body" id="join-t1"></div>
+                        </div>
+                        <div class="df-card">
+                            <div class="df-card-header">df2 (Right)</div>
+                            <div class="df-card-body" id="join-t2"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="cell">
                     <div class="cell-input">
                         <div class="prompt" id="prompt-2">In [2]:</div>
@@ -220,7 +246,7 @@ df</div>
     </div>
 
     <footer class="fixed-footer">
-        Ideation & development <a href="https://github.com/edusatyaki" target="_blank">Satyaki Das</a> | Innovation in Education v_05.0.0
+        Ideation & development <a href="https://github.com/edusatyaki" target="_blank">Satyaki Das</a> | Innovation in Education v_05.1.0
     </footer>
 
     <script>
@@ -229,13 +255,17 @@ df</div>
             let hHtml = headers.map(h => `<th>${h}</th>`).join('');
             let rHtml = rows.map((r, i) => {
                 let idx = indexLabels ? indexLabels[i] : i;
-                let dHtml = r.map(d => `<td>${d}</td>`).join('');
+                let dHtml = r.map(d => {
+                    // Handle NaN specially for display
+                    if(d === 'NaN') return '<span style="color:#aaa">NaN</span>';
+                    return `<td>${d}</td>`;
+                }).join('');
                 return `<tr><th>${idx}</th>${dHtml}</tr>`;
             }).join('');
             return `<table class="dataframe"><thead><tr style="text-align: right;"><th></th>${hHtml}</tr></thead><tbody>${rHtml}</tbody></table>`;
         }
 
-        // --- FULL METHOD DATASET (120 Methods) ---
+        // --- FULL METHOD DATASET (120+ Methods) ---
         const methods = [
             // --- 1. IO ---
             { cat: 'IO', name: 'pd.read_csv()', desc: 'Read a CSV file.', sourceTitle: 'data.csv', sourceIcon: '📄', source: `EmpID,Name,Dept,Salary,Date\n101,Alice,IT,70000,2023-01-01\n102,Bob,Sales,85000,2023-02-15\n103,Charlie,IT,70000,2023-01-01\n104,David,HR,60000,2023-03-10`, code: "# Read CSV into DataFrame\ndf = pd.read_csv('data.csv')", out: createTable(['EmpID','Name','Dept','Salary','Date'], [[101,'Alice','IT',70000,'2023-01-01'],[102,'Bob','Sales',85000,'2023-02-15'],[103,'Charlie','IT',70000,'2023-01-01'],[104,'David','HR',60000,'2023-03-10']]) },
@@ -338,7 +368,7 @@ df</div>
             { cat: 'Transformation', name: 'unstack()', desc: 'Unstack index.', code: "# Index to cols\ndf.unstack()", out: 'Unstacked DF' },
             { cat: 'Transformation', name: 'explode()', desc: 'Explode list.', code: "# Flatten list col\ndf.assign(L=[[1,2]]*4).explode('L')", out: '8 rows' },
             { cat: 'Transformation', name: 'get_dummies()', desc: 'One-hot encode.', code: "# Categorical to cols\npd.get_dummies(df['Dept'])", out: 'Dept_IT 1...' },
-            { cat: 'Transformation', name: 'crosstab()', desc: 'Frequency table.', code: "# Count matrix\npd.crosstab(df['Dept'], df['Name'])", out: 'Counts' },
+            { cat: 'Transformation', name: 'crosstab()', desc: 'Frequency table.', code: "# Count matrix\npd.crosstab(df['Dept'], df['Name'])", out: createTable(['Alice','Bob','Charlie','David'], [[1,0,1,0],[0,0,0,1],[0,1,0,0]], ['IT','HR','Sales']) },
             { cat: 'Transformation', name: 'cut()', desc: 'Binning.', code: "# 3 Equal width bins\npd.cut(df['Salary'], 3)", out: 'Intervals' },
             { cat: 'Transformation', name: 'qcut()', desc: 'Quantile binning.', code: "# 2 Quantile bins\npd.qcut(df['Salary'], 2)", out: 'Quantile intervals' },
             { cat: 'Transformation', name: 'str.lower()', desc: 'Lowercase.', code: "# Lowercase text\ndf['Name'].str.lower()", out: 'alice...' },
@@ -356,8 +386,11 @@ df</div>
             { cat: 'Aggregation', name: 'expanding()', desc: 'Expanding window.', code: "# Cumulative max\ndf['Salary'].expanding().max()", out: '70000, 85000...' },
             { cat: 'Aggregation', name: 'ewm()', desc: 'Exp weighted.', code: "# Exp weighted mean\ndf['Salary'].ewm(span=2).mean()", out: 'Weighted means' },
             
-            // 8. Merging
-            { cat: 'Merging', name: 'merge()', desc: 'Merge DFs.', code: "# Inner join\npd.merge(df, df, on='EmpID')", out: 'Merged DF' },
+            // 8. Merging (UPDATED WITH ALL JOIN TYPES)
+            { cat: 'Merging', isJoin: true, name: 'merge() (Inner)', desc: 'Intersection of keys.', code: "# Inner Join (A, B) & (B, C) -> B, C\npd.merge(df1, df2, on='Key', how='inner')", out: createTable(['Key','Val1','Val2'], [['B',2,4],['C',3,5]]) },
+            { cat: 'Merging', isJoin: true, name: 'merge() (Left)', desc: 'Keep all left keys.', code: "# Left Join: Keep all df1\npd.merge(df1, df2, on='Key', how='left')", out: createTable(['Key','Val1','Val2'], [['A',1,'NaN'],['B',2,4],['C',3,5]]) },
+            { cat: 'Merging', isJoin: true, name: 'merge() (Right)', desc: 'Keep all right keys.', code: "# Right Join: Keep all df2\npd.merge(df1, df2, on='Key', how='right')", out: createTable(['Key','Val1','Val2'], [['B',2,4],['C',3,5],['D','NaN',6]]) },
+            { cat: 'Merging', isJoin: true, name: 'merge() (Outer)', desc: 'Union of keys.', code: "# Outer Join: Keep all\npd.merge(df1, df2, on='Key', how='outer')", out: createTable(['Key','Val1','Val2'], [['A',1,'NaN'],['B',2,4],['C',3,5],['D','NaN',6]]) },
             { cat: 'Merging', name: 'join()', desc: 'Join DFs.', code: "# Join on Index\ndf.join(df, lsuffix='_L')", out: 'Joined DF' },
             { cat: 'Merging', name: 'concat()', desc: 'Concatenate.', code: "# Stack Vertically\npd.concat([df, df])", out: '8 rows' },
             { cat: 'Merging', name: 'combine_first()', desc: 'Combine.', code: "# Fill nulls\ndf.combine_first(df)", out: 'Same DF' },
@@ -416,28 +449,46 @@ df</div>
             const outBox = document.getElementById('output-box');
             const initCell = document.getElementById('init-cell');
             const prompt2 = document.getElementById('prompt-2');
+            
             const sourceContainer = document.getElementById('source-container');
             const sourceTitle = document.getElementById('source-title');
             const sourceBody = document.getElementById('source-body');
             const sourceIcon = document.getElementById('source-icon');
 
+            const joinContainer = document.getElementById('join-container');
+            const joinT1 = document.getElementById('join-t1');
+            const joinT2 = document.getElementById('join-t2');
+
             document.getElementById('modal').classList.add('active');
             
+            // RESET DISPLAY STATES
+            initCell.style.display = 'none';
+            sourceContainer.style.display = 'none';
+            joinContainer.style.display = 'none';
+
             // Logic: Is this an IO Read method?
             if (m.cat === 'IO' && m.name.startsWith('pd.read_')) {
-                // Hide Init Cell
-                initCell.style.display = 'none';
                 prompt2.textContent = 'In [1]:';
                 // Show File Preview
                 sourceContainer.style.display = 'block';
                 sourceTitle.textContent = m.sourceTitle || 'source_file';
                 sourceBody.textContent = m.source || 'Binary Data';
                 sourceIcon.textContent = m.sourceIcon || '📄';
-            } else {
-                // Show Init Cell (Standard Context)
+            } 
+            // Logic: Is this a Join method?
+            else if (m.isJoin) {
+                prompt2.textContent = 'In [2]:';
+                // Show Dual Table Setup
+                joinContainer.style.display = 'block';
+                // Render small tables for visual context
+                joinT1.innerHTML = createTable(['Key','Val1'], [['A',1],['B',2],['C',3]]);
+                joinT2.innerHTML = createTable(['Key','Val2'], [['B',4],['C',5],['D',6]]);
+            }
+            // Standard Logic
+            else {
+                // Show Init Cell
                 initCell.style.display = 'block';
                 prompt2.textContent = 'In [2]:';
-                sourceContainer.style.display = 'none';
             }
 
             codeBox.textContent = '';
